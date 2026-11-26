@@ -8,6 +8,12 @@ export type ViewMode = 'grid' | 'table';
 
 export type NavFilter = 'semua' | CollectionType | 'favorit';
 
+export type ThemeMode = 'light' | 'sepia' | 'dark';
+
+export type TextScale = 'normal' | 'large' | 'xlarge';
+
+export type YearFilter = 'semua' | '2025_plus' | '2024' | '2022_2023' | 'sebelum_2022';
+
 export interface LibraryAttachment {
   name: string;
   sizeBytes?: number;
@@ -29,6 +35,11 @@ export interface LibraryItem {
   personalNotes?: string;
   coverUrl?: string;
   attachment?: LibraryAttachment;
+  callNumber?: string;
+  language?: string;
+  tableOfContents?: string[];
+  readingExcerpt?: string;
+  isFeatured?: boolean;
 
   // Fields khusus Skripsi & Tugas Akhir
   studentId?: string; // NIM
@@ -55,6 +66,9 @@ export interface LibraryFormInput {
   coverUrl: string;
   attachment?: LibraryAttachment;
   externalUrl: string;
+  callNumber: string;
+  language: string;
+  readingExcerpt: string;
 
   studentId: string;
   programStudy: string;

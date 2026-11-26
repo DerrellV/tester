@@ -23,10 +23,16 @@ interface AddEditModalProps {
   initialType: CollectionType;
   editingItem: LibraryItem | null;
   onClose: () => void;
-  onSave: (itemData: Omit<LibraryItem, 'id' | 'createdAt' | 'updatedAt'>, editingId?: string) => void;
+  onSave: (
+    itemData: Omit<LibraryItem, 'id' | 'createdAt' | 'updatedAt'>,
+    editingId?: string
+  ) => void;
 }
 
-function buildEmptyForm(type: CollectionType, item?: LibraryItem | null): LibraryFormInput {
+function buildEmptyForm(
+  type: CollectionType,
+  item?: LibraryItem | null
+): LibraryFormInput {
   if (item) {
     return {
       type: item.type,
@@ -38,7 +44,11 @@ function buildEmptyForm(type: CollectionType, item?: LibraryItem | null): Librar
       personalNotes: item.personalNotes || '',
       coverUrl: item.coverUrl || '',
       attachment: item.attachment,
-      externalUrl: item.attachment && !item.attachment.isLocalFile ? item.attachment.url : '',
+      externalUrl:
+        item.attachment && !item.attachment.isLocalFile ? item.attachment.url : '',
+      callNumber: item.callNumber || '',
+      language: item.language || 'Bahasa Indonesia',
+      readingExcerpt: item.readingExcerpt || '',
       studentId: item.studentId || '',
       programStudy: item.programStudy || '',
       faculty: item.faculty || '',
@@ -62,6 +72,9 @@ function buildEmptyForm(type: CollectionType, item?: LibraryItem | null): Librar
     coverUrl: '',
     attachment: undefined,
     externalUrl: '',
+    callNumber: '',
+    language: 'Bahasa Indonesia',
+    readingExcerpt: '',
     studentId: '',
     programStudy: '',
     faculty: '',
@@ -84,7 +97,11 @@ export function AddEditModal({
   const [form, setForm] = useState<LibraryFormInput>(() =>
     buildEmptyForm(initialType, editingItem)
   );
-  const [errors, setErrors] = useState<{ title?: string; author?: string; year?: string }>({});
+  const [errors, setErrors] = useState<{
+    title?: string;
+    author?: string;
+    year?: string;
+  }>({});
   const docInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
@@ -189,15 +206,24 @@ export function AddEditModal({
         personalNotes: form.personalNotes.trim() || undefined,
         coverUrl: form.coverUrl.trim() || undefined,
         attachment: finalAttachment,
+        callNumber: form.callNumber.trim() || undefined,
+        language: form.language.trim() || undefined,
+        readingExcerpt: form.readingExcerpt.trim() || undefined,
+        tableOfContents: editingItem?.tableOfContents,
+        isFeatured: editingItem?.isFeatured,
         studentId: isAcademic ? form.studentId.trim() || undefined : undefined,
-        programStudy: isAcademic ? form.programStudy.trim() || undefined : undefined,
+        programStudy: isAcademic
+          ? form.programStudy.trim() || undefined
+          : undefined,
         faculty: isAcademic ? form.faculty.trim() || undefined : undefined,
         advisor: isAcademic ? form.advisor.trim() || undefined : undefined,
         publisher: !isAcademic ? form.publisher.trim() || undefined : undefined,
         isbn: !isAcademic ? form.isbn.trim() || undefined : undefined,
         pages: !isAcademic && parsedPages > 0 ? parsedPages : undefined,
         readingStatus: !isAcademic ? form.readingStatus : undefined,
-        categoryTopic: !isAcademic ? form.categoryTopic.trim() || undefined : undefined,
+        categoryTopic: !isAcademic
+          ? form.categoryTopic.trim() || undefined
+          : undefined,
       },
       editingItem?.id
     );
@@ -229,21 +255,24 @@ export function AddEditModal({
     },
   ];
 
+  const inputBaseClass =
+    'w-full px-3.5 py-2.5 text-sm bg-[var(--bg-surface)] text-[var(--text-primary)] border border-[var(--border-strong)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]/20 focus:border-[var(--accent-primary)]';
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/50 backdrop-blur-[1px]"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/55 backdrop-blur-[1px]"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
     >
-      <div className="bg-white border border-stone-200 rounded-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-xl">
+      <div className="bg-[var(--bg-surface)] text-[var(--text-primary)] border border-[var(--border-hairline)] rounded-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-xl">
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-hairline)] shrink-0">
           <div>
-            <h2 id="modal-title" className="text-lg font-bold text-stone-900">
+            <h2 id="modal-title" className="font-serif text-lg font-bold text-[var(--text-primary)]">
               {editingItem ? 'Edit Data Koleksi' : 'Tambah Koleksi Baru'}
             </h2>
-            <p className="text-xs text-stone-500 mt-0.5">
+            <p className="text-xs text-[var(--text-muted)] mt-0.5">
               Pilih jenis koleksi terlebih dahulu, lalu lengkapi informasi di bawahnya.
             </p>
           </div>
@@ -251,17 +280,20 @@ export function AddEditModal({
             type="button"
             onClick={onClose}
             aria-label="Tutup formulir"
-            className="p-2 -mr-2 text-stone-500 hover:text-stone-900 hover:bg-stone-100 rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-indigo-600"
+            className="min-w-[40px] min-h-[40px] flex items-center justify-center -mr-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-[var(--accent-primary)]"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          className="flex-1 overflow-y-auto px-6 py-5 space-y-6"
+        >
           {/* Step 1: Pilih Jenis Koleksi */}
           <div>
-            <label className="block text-sm font-semibold text-stone-800 mb-2.5">
+            <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2.5">
               1. Pilih Jenis Koleksi
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -272,16 +304,18 @@ export function AddEditModal({
                   <button
                     key={choice.id}
                     type="button"
-                    onClick={() => setForm((prev) => ({ ...prev, type: choice.id }))}
-                    className={`flex items-start gap-3 p-3.5 rounded-lg border text-left transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-indigo-600 ${
+                    onClick={() =>
+                      setForm((prev) => ({ ...prev, type: choice.id }))
+                    }
+                    className={`flex items-start gap-3 p-3.5 rounded-lg border text-left transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-[var(--accent-primary)] ${
                       active
-                        ? 'border-indigo-600 bg-indigo-50/70 text-stone-900'
-                        : 'border-stone-200 bg-white hover:border-stone-300 text-stone-700'
+                        ? 'border-[var(--accent-primary)] bg-[var(--accent-soft)] text-[var(--text-primary)]'
+                        : 'border-[var(--border-hairline)] bg-[var(--bg-surface)] hover:border-[var(--border-strong)] text-[var(--text-secondary)]'
                     }`}
                   >
                     <Icon
                       className={`w-5 h-5 mt-0.5 shrink-0 ${
-                        active ? 'text-indigo-700' : 'text-stone-400'
+                        active ? 'text-[var(--accent-text)]' : 'text-[var(--text-muted)]'
                       }`}
                       aria-hidden="true"
                     />
@@ -289,7 +323,7 @@ export function AddEditModal({
                       <div className="text-sm font-semibold whitespace-nowrap">
                         {choice.label}
                       </div>
-                      <div className="text-xs text-stone-500 mt-0.5">
+                      <div className="text-xs text-[var(--text-muted)] mt-0.5">
                         {choice.desc}
                       </div>
                     </div>
@@ -300,18 +334,18 @@ export function AddEditModal({
           </div>
 
           {/* Step 2: Informasi Utama */}
-          <div className="space-y-4 pt-2 border-t border-stone-100">
-            <p className="text-sm font-semibold text-stone-800">
+          <div className="space-y-4 pt-3 border-t border-[var(--border-hairline)]">
+            <p className="text-sm font-semibold text-[var(--text-primary)]">
               2. Informasi Utama ({COLLECTION_META[form.type].label})
             </p>
 
             <div>
               <label
                 htmlFor="field-title"
-                className="block text-xs font-semibold text-stone-700 mb-1.5"
+                className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5"
               >
                 Judul {COLLECTION_META[form.type].label}{' '}
-                <span className="text-red-600">*</span>
+                <span className="text-red-600 dark:text-red-400">*</span>
               </label>
               <input
                 id="field-title"
@@ -319,19 +353,22 @@ export function AddEditModal({
                 value={form.title}
                 onChange={(e) => {
                   setForm((prev) => ({ ...prev, title: e.target.value }));
-                  if (errors.title) setErrors((prev) => ({ ...prev, title: undefined }));
+                  if (errors.title)
+                    setErrors((prev) => ({ ...prev, title: undefined }));
                 }}
                 placeholder={
                   isAcademic
                     ? 'Contoh: Perancangan Sistem Informasi Perpustakaan Berbasis Web'
                     : 'Contoh: Metodologi Penelitian Pendidikan'
                 }
-                className={`w-full px-3.5 py-2.5 text-sm bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 ${
-                  errors.title ? 'border-red-500' : 'border-stone-300'
+                className={`${inputBaseClass} ${
+                  errors.title ? 'border-red-500' : ''
                 }`}
               />
               {errors.title && (
-                <p className="text-xs text-red-600 mt-1">{errors.title}</p>
+                <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                  {errors.title}
+                </p>
               )}
             </div>
 
@@ -339,10 +376,10 @@ export function AddEditModal({
               <div className="sm:col-span-2">
                 <label
                   htmlFor="field-author"
-                  className="block text-xs font-semibold text-stone-700 mb-1.5"
+                  className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5"
                 >
                   {isAcademic ? 'Nama Penulis / Mahasiswa' : 'Nama Penulis Buku'}{' '}
-                  <span className="text-red-600">*</span>
+                  <span className="text-red-600 dark:text-red-400">*</span>
                 </label>
                 <input
                   id="field-author"
@@ -350,26 +387,30 @@ export function AddEditModal({
                   value={form.author}
                   onChange={(e) => {
                     setForm((prev) => ({ ...prev, author: e.target.value }));
-                    if (errors.author) setErrors((prev) => ({ ...prev, author: undefined }));
+                    if (errors.author)
+                      setErrors((prev) => ({ ...prev, author: undefined }));
                   }}
                   placeholder={
                     isAcademic ? 'Contoh: Budi Santoso' : 'Contoh: Don Norman'
                   }
-                  className={`w-full px-3.5 py-2.5 text-sm bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 ${
-                    errors.author ? 'border-red-500' : 'border-stone-300'
+                  className={`${inputBaseClass} ${
+                    errors.author ? 'border-red-500' : ''
                   }`}
                 />
                 {errors.author && (
-                  <p className="text-xs text-red-600 mt-1">{errors.author}</p>
+                  <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                    {errors.author}
+                  </p>
                 )}
               </div>
 
               <div>
                 <label
                   htmlFor="field-year"
-                  className="block text-xs font-semibold text-stone-700 mb-1.5"
+                  className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5"
                 >
-                  Tahun Terbit <span className="text-red-600">*</span>
+                  Tahun Terbit{' '}
+                  <span className="text-red-600 dark:text-red-400">*</span>
                 </label>
                 <input
                   id="field-year"
@@ -378,26 +419,31 @@ export function AddEditModal({
                   max={2100}
                   value={form.year}
                   onChange={(e) => {
-                    setForm((prev) => ({ ...prev, year: Number(e.target.value) }));
-                    if (errors.year) setErrors((prev) => ({ ...prev, year: undefined }));
+                    setForm((prev) => ({
+                      ...prev,
+                      year: Number(e.target.value),
+                    }));
+                    if (errors.year)
+                      setErrors((prev) => ({ ...prev, year: undefined }));
                   }}
-                  className={`w-full px-3.5 py-2.5 text-sm font-mono tabular-nums bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 ${
-                    errors.year ? 'border-red-500' : 'border-stone-300'
+                  className={`${inputBaseClass} font-mono tabular-nums ${
+                    errors.year ? 'border-red-500' : ''
                   }`}
                 />
                 {errors.year && (
-                  <p className="text-xs text-red-600 mt-1">{errors.year}</p>
+                  <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                    {errors.year}
+                  </p>
                 )}
               </div>
             </div>
 
-            {/* Dynamic Fields Based on Type */}
             {isAcademic ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label
                     htmlFor="field-nim"
-                    className="block text-xs font-semibold text-stone-700 mb-1.5"
+                    className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5"
                   >
                     NIM / Nomor Induk Mahasiswa
                   </label>
@@ -409,14 +455,14 @@ export function AddEditModal({
                       setForm((prev) => ({ ...prev, studentId: e.target.value }))
                     }
                     placeholder="Contoh: 21051204042"
-                    className="w-full px-3.5 py-2.5 text-sm font-mono bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600"
+                    className={`${inputBaseClass} font-mono`}
                   />
                 </div>
 
                 <div>
                   <label
                     htmlFor="field-advisor"
-                    className="block text-xs font-semibold text-stone-700 mb-1.5"
+                    className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5"
                   >
                     Dosen Pembimbing
                   </label>
@@ -428,14 +474,14 @@ export function AddEditModal({
                       setForm((prev) => ({ ...prev, advisor: e.target.value }))
                     }
                     placeholder="Contoh: Dr. Hendra Wijaya, M.Kom."
-                    className="w-full px-3.5 py-2.5 text-sm bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600"
+                    className={inputBaseClass}
                   />
                 </div>
 
                 <div>
                   <label
                     htmlFor="field-prodi"
-                    className="block text-xs font-semibold text-stone-700 mb-1.5"
+                    className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5"
                   >
                     Program Studi / Jurusan
                   </label>
@@ -444,17 +490,20 @@ export function AddEditModal({
                     type="text"
                     value={form.programStudy}
                     onChange={(e) =>
-                      setForm((prev) => ({ ...prev, programStudy: e.target.value }))
+                      setForm((prev) => ({
+                        ...prev,
+                        programStudy: e.target.value,
+                      }))
                     }
                     placeholder="Contoh: Teknik Informatika"
-                    className="w-full px-3.5 py-2.5 text-sm bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600"
+                    className={inputBaseClass}
                   />
                 </div>
 
                 <div>
                   <label
                     htmlFor="field-faculty"
-                    className="block text-xs font-semibold text-stone-700 mb-1.5"
+                    className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5"
                   >
                     Fakultas / Institusi
                   </label>
@@ -466,7 +515,7 @@ export function AddEditModal({
                       setForm((prev) => ({ ...prev, faculty: e.target.value }))
                     }
                     placeholder="Contoh: Fakultas Teknik"
-                    className="w-full px-3.5 py-2.5 text-sm bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600"
+                    className={inputBaseClass}
                   />
                 </div>
               </div>
@@ -475,7 +524,7 @@ export function AddEditModal({
                 <div>
                   <label
                     htmlFor="field-publisher"
-                    className="block text-xs font-semibold text-stone-700 mb-1.5"
+                    className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5"
                   >
                     Penerbit
                   </label>
@@ -487,42 +536,36 @@ export function AddEditModal({
                       setForm((prev) => ({ ...prev, publisher: e.target.value }))
                     }
                     placeholder="Contoh: Gramedia Pustaka Utama"
-                    className="w-full px-3.5 py-2.5 text-sm bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600"
+                    className={inputBaseClass}
                   />
                 </div>
 
                 <div>
                   <label
-                    htmlFor="field-status"
-                    className="block text-xs font-semibold text-stone-700 mb-1.5"
+                    htmlFor="field-topic"
+                    className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5"
                   >
-                    Status Bacaan
+                    Bidang / Topik Buku
                   </label>
-                  <select
-                    id="field-status"
-                    value={form.readingStatus}
+                  <input
+                    id="field-topic"
+                    type="text"
+                    value={form.categoryTopic}
                     onChange={(e) =>
                       setForm((prev) => ({
                         ...prev,
-                        readingStatus: e.target.value as ReadingStatus,
+                        categoryTopic: e.target.value,
                       }))
                     }
-                    className="w-full px-3.5 py-2.5 text-sm bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600"
-                  >
-                    {(Object.keys(READING_STATUS_LABEL) as ReadingStatus[]).map(
-                      (statusKey) => (
-                        <option key={statusKey} value={statusKey}>
-                          {READING_STATUS_LABEL[statusKey]}
-                        </option>
-                      )
-                    )}
-                  </select>
+                    placeholder="Contoh: Metodologi Riset"
+                    className={inputBaseClass}
+                  />
                 </div>
 
                 <div>
                   <label
                     htmlFor="field-isbn"
-                    className="block text-xs font-semibold text-stone-700 mb-1.5"
+                    className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5"
                   >
                     Nomor ISBN (Opsional)
                   </label>
@@ -534,43 +577,72 @@ export function AddEditModal({
                       setForm((prev) => ({ ...prev, isbn: e.target.value }))
                     }
                     placeholder="Contoh: 978-602-000-000-0"
-                    className="w-full px-3.5 py-2.5 text-sm font-mono bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600"
+                    className={`${inputBaseClass} font-mono`}
                   />
                 </div>
 
-                <div>
-                  <label
-                    htmlFor="field-pages"
-                    className="block text-xs font-semibold text-stone-700 mb-1.5"
-                  >
-                    Jumlah Halaman (Opsional)
-                  </label>
-                  <input
-                    id="field-pages"
-                    type="number"
-                    min={1}
-                    value={form.pages}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, pages: e.target.value }))
-                    }
-                    placeholder="Contoh: 320"
-                    className="w-full px-3.5 py-2.5 text-sm font-mono tabular-nums bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600"
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label
+                      htmlFor="field-pages"
+                      className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5"
+                    >
+                      Halaman
+                    </label>
+                    <input
+                      id="field-pages"
+                      type="number"
+                      min={1}
+                      value={form.pages}
+                      onChange={(e) =>
+                        setForm((prev) => ({ ...prev, pages: e.target.value }))
+                      }
+                      placeholder="320"
+                      className={`${inputBaseClass} font-mono tabular-nums`}
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="field-status"
+                      className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5"
+                    >
+                      Status
+                    </label>
+                    <select
+                      id="field-status"
+                      value={form.readingStatus}
+                      onChange={(e) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          readingStatus: e.target.value as ReadingStatus,
+                        }))
+                      }
+                      className={inputBaseClass}
+                    >
+                      {(
+                        Object.keys(READING_STATUS_LABEL) as ReadingStatus[]
+                      ).map((statusKey) => (
+                        <option key={statusKey} value={statusKey}>
+                          {READING_STATUS_LABEL[statusKey]}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Step 3: Abstrak / Ringkasan & Kata Kunci */}
-          <div className="space-y-4 pt-2 border-t border-stone-100">
-            <p className="text-sm font-semibold text-stone-800">
-              3. Ringkasan & Kata Kunci
+          {/* Step 3: Ringkasan, Cuplikan Baca & Kata Kunci */}
+          <div className="space-y-4 pt-3 border-t border-[var(--border-hairline)]">
+            <p className="text-sm font-semibold text-[var(--text-primary)]">
+              3. Ringkasan, Cuplikan & Kata Kunci
             </p>
 
             <div>
               <label
                 htmlFor="field-abstract"
-                className="block text-xs font-semibold text-stone-700 mb-1.5"
+                className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5"
               >
                 {isAcademic ? 'Abstrak Singkat' : 'Sinopsis / Ringkasan Buku'}
               </label>
@@ -589,41 +661,85 @@ export function AddEditModal({
                     ? 'Tuliskan tujuan, metode, atau hasil utama penelitian...'
                     : 'Tuliskan inti bahasan atau ringkasan isi buku...'
                 }
-                className="w-full px-3.5 py-2.5 text-sm bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 resize-y"
+                className={`${inputBaseClass} resize-y`}
               />
             </div>
 
             <div>
               <label
-                htmlFor="field-keywords"
-                className="block text-xs font-semibold text-stone-700 mb-1.5"
+                htmlFor="field-excerpt"
+                className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5"
               >
-                Kata Kunci / Topik (pisahkan dengan koma)
+                Cuplikan Teks untuk Mode Baca (Opsional)
               </label>
-              <input
-                id="field-keywords"
-                type="text"
-                value={form.keywordsText}
+              <textarea
+                id="field-excerpt"
+                rows={3}
+                value={form.readingExcerpt}
                 onChange={(e) =>
-                  setForm((prev) => ({ ...prev, keywordsText: e.target.value }))
+                  setForm((prev) => ({
+                    ...prev,
+                    readingExcerpt: e.target.value,
+                  }))
                 }
-                placeholder="Contoh: Desain UX, Sistem Informasi, Pustaka Digital"
-                className="w-full px-3.5 py-2.5 text-sm bg-white border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600"
+                placeholder="Tempel paragraf pembuka atau kutipan bab awal agar pengunjung bisa langsung membacanya di Mode Baca..."
+                className={`${inputBaseClass} resize-y`}
               />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="field-keywords"
+                  className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5"
+                >
+                  Kata Kunci (pisahkan dengan koma)
+                </label>
+                <input
+                  id="field-keywords"
+                  type="text"
+                  value={form.keywordsText}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      keywordsText: e.target.value,
+                    }))
+                  }
+                  placeholder="Contoh: Desain UX, Sistem Informasi"
+                  className={inputBaseClass}
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="field-callnumber"
+                  className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5"
+                >
+                  Nomor Panggil / Kode Rak (Opsional)
+                </label>
+                <input
+                  id="field-callnumber"
+                  type="text"
+                  value={form.callNumber}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, callNumber: e.target.value }))
+                  }
+                  placeholder="Contoh: SKR-TI-2025-05"
+                  className={`${inputBaseClass} font-mono`}
+                />
+              </div>
             </div>
           </div>
 
           {/* Step 4: Lampiran File / Tautan & Sampul */}
-          <div className="space-y-4 pt-2 border-t border-stone-100">
-            <p className="text-sm font-semibold text-stone-800">
+          <div className="space-y-4 pt-3 border-t border-[var(--border-hairline)]">
+            <p className="text-sm font-semibold text-[var(--text-primary)]">
               4. Lampiran Dokumen & Sampul (Opsional)
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Unggah File PDF / Dokumen */}
-              <div className="p-3.5 border border-stone-200 rounded-lg bg-stone-50/50 space-y-2.5">
+              <div className="p-3.5 border border-[var(--border-hairline)] rounded-lg bg-[var(--bg-subtle)]/50 space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-stone-700">
+                  <span className="text-xs font-semibold text-[var(--text-secondary)]">
                     File Dokumen (PDF/DOCX)
                   </span>
                   {form.attachment && (
@@ -636,7 +752,7 @@ export function AddEditModal({
                           externalUrl: '',
                         }))
                       }
-                      className="text-xs text-red-600 hover:text-red-700 inline-flex items-center gap-1"
+                      className="text-xs text-red-600 dark:text-red-400 hover:underline inline-flex items-center gap-1"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       Hapus
@@ -653,14 +769,14 @@ export function AddEditModal({
                 />
 
                 {form.attachment ? (
-                  <div className="text-xs text-stone-700 bg-white border border-stone-200 rounded-md px-3 py-2 truncate">
+                  <div className="text-xs text-[var(--text-primary)] bg-[var(--bg-surface)] border border-[var(--border-hairline)] rounded-md px-3 py-2 truncate">
                     {form.attachment.name}
                   </div>
                 ) : (
                   <button
                     type="button"
                     onClick={() => docInputRef.current?.click()}
-                    className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-white border border-stone-300 hover:border-stone-400 rounded-md text-xs font-medium text-stone-700 transition-colors"
+                    className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-[var(--bg-surface)] border border-[var(--border-strong)] rounded-md text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-colors"
                   >
                     <Upload className="w-3.5 h-3.5" />
                     Pilih File dari Perangkat
@@ -669,7 +785,7 @@ export function AddEditModal({
 
                 <div className="relative">
                   <LinkIcon
-                    className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2"
+                    className="w-3.5 h-3.5 text-[var(--text-muted)] absolute left-3 top-1/2 -translate-y-1/2"
                     aria-hidden="true"
                   />
                   <input
@@ -683,22 +799,23 @@ export function AddEditModal({
                       }))
                     }
                     placeholder="Atau tempel tautan dokumen (URL)..."
-                    className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-stone-200 rounded-md focus:outline-none focus:border-indigo-600"
+                    className="w-full pl-8 pr-3 py-1.5 text-xs bg-[var(--bg-surface)] text-[var(--text-primary)] border border-[var(--border-hairline)] rounded-md focus:outline-none focus:border-[var(--accent-primary)]"
                   />
                 </div>
               </div>
 
-              {/* Unggah Sampul */}
-              <div className="p-3.5 border border-stone-200 rounded-lg bg-stone-50/50 space-y-2.5">
+              <div className="p-3.5 border border-[var(--border-hairline)] rounded-lg bg-[var(--bg-subtle)]/50 space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-stone-700">
+                  <span className="text-xs font-semibold text-[var(--text-secondary)]">
                     Gambar Sampul (Opsional)
                   </span>
                   {form.coverUrl && (
                     <button
                       type="button"
-                      onClick={() => setForm((prev) => ({ ...prev, coverUrl: '' }))}
-                      className="text-xs text-red-600 hover:text-red-700 inline-flex items-center gap-1"
+                      onClick={() =>
+                        setForm((prev) => ({ ...prev, coverUrl: '' }))
+                      }
+                      className="text-xs text-red-600 dark:text-red-400 hover:underline inline-flex items-center gap-1"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       Hapus
@@ -719,9 +836,9 @@ export function AddEditModal({
                     <img
                       src={form.coverUrl}
                       alt="Pratinjau sampul"
-                      className="w-10 h-14 object-cover rounded border border-stone-200"
+                      className="w-10 h-14 object-cover rounded border border-[var(--border-hairline)]"
                     />
-                    <span className="text-xs text-stone-600">
+                    <span className="text-xs text-[var(--text-secondary)]">
                       Sampul siap digunakan
                     </span>
                   </div>
@@ -729,13 +846,13 @@ export function AddEditModal({
                   <button
                     type="button"
                     onClick={() => coverInputRef.current?.click()}
-                    className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-white border border-stone-300 hover:border-stone-400 rounded-md text-xs font-medium text-stone-700 transition-colors"
+                    className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-[var(--bg-surface)] border border-[var(--border-strong)] rounded-md text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-colors"
                   >
                     <ImageIcon className="w-3.5 h-3.5" />
                     Unggah Gambar Sampul
                   </button>
                 )}
-                <p className="text-[11px] text-stone-500 leading-snug">
+                <p className="text-[11px] text-[var(--text-muted)] leading-snug">
                   Jika dikosongkan, sistem membuat sampul tipografi otomatis yang rapi.
                 </p>
               </div>
@@ -743,17 +860,17 @@ export function AddEditModal({
           </div>
 
           {/* Modal Footer */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-stone-200">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[var(--border-hairline)]">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-stone-700 bg-white border border-stone-300 rounded-lg hover:bg-stone-50 transition-colors whitespace-nowrap"
+              className="px-4 py-2 text-sm font-medium text-[var(--text-primary)] bg-[var(--bg-surface)] border border-[var(--border-strong)] rounded-lg hover:bg-[var(--bg-subtle)] transition-colors whitespace-nowrap"
             >
               Batal
             </button>
             <button
               type="submit"
-              className="px-5 py-2 text-sm font-semibold text-white bg-indigo-700 hover:bg-indigo-800 rounded-lg transition-colors whitespace-nowrap focus-visible:outline-2 focus-visible:outline-indigo-600"
+              className="px-5 py-2 text-sm font-semibold text-white bg-[#1E3A8A] hover:bg-[#172554] dark:bg-[#2563EB] dark:hover:bg-[#1D4ED8] rounded-lg transition-colors whitespace-nowrap focus-visible:outline-2 focus-visible:outline-[var(--accent-primary)]"
             >
               {editingItem ? 'Simpan Perubahan' : 'Simpan ke Koleksi'}
             </button>

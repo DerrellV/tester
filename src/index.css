@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
@@ -6,11 +7,87 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
+:root {
+  --bg-canvas: #FBF9F5;
+  --bg-surface: #FFFFFF;
+  --bg-subtle: #F3EFE7;
+  --bg-elevated: #EAE4D8;
+  --text-primary: #1C1917;
+  --text-secondary: #57534E;
+  --text-muted: #78716C;
+  --border-hairline: #E5DFD5;
+  --border-strong: #D6CEBE;
+  --accent-primary: #1E3A8A;
+  --accent-hover: #172554;
+  --accent-soft: #EEF2FF;
+  --accent-text: #1E3A8A;
+}
+
+html.theme-sepia {
+  --bg-canvas: #F4ECD8;
+  --bg-surface: #FAF4E6;
+  --bg-subtle: #EAE0C8;
+  --bg-elevated: #DFD2B5;
+  --text-primary: #2B2118;
+  --text-secondary: #5C4B3B;
+  --text-muted: #7A6754;
+  --border-hairline: #DCD0B6;
+  --border-strong: #C9B997;
+  --accent-primary: #7C2D12;
+  --accent-hover: #5C1F0A;
+  --accent-soft: #F3E3D3;
+  --accent-text: #7C2D12;
+}
+
+html.dark {
+  --bg-canvas: #121110;
+  --bg-surface: #1B1A18;
+  --bg-subtle: #252320;
+  --bg-elevated: #302D29;
+  --text-primary: #F5F2EC;
+  --text-secondary: #C8C2B8;
+  --text-muted: #9C958B;
+  --border-hairline: #2E2C28;
+  --border-strong: #44403A;
+  --accent-primary: #93C5FD;
+  --accent-hover: #BFDBFE;
+  --accent-soft: #1E293B;
+  --accent-text: #93C5FD;
+}
+
+html.text-scale-normal {
+  font-size: 16px;
+}
+
+html.text-scale-large {
+  font-size: 18px;
+}
+
+html.text-scale-xlarge {
+  font-size: 20px;
+}
+
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
   body {
     font-family: var(--font-sans);
-    background-color: #F8F8F6;
-    color: #1C1917;
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    transition: background-color 180ms cubic-bezier(0.16, 1, 0.3, 1), color 180ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   h1, h2, h3 {

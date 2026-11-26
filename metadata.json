@@ -1,0 +1,6 @@
+{
+  "name": "Pustaka Karya",
+  "description": "Website repositori dan manajemen koleksi skripsi, tugas akhir, serta buku bacaan yang rapi dan mudah digunakan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
